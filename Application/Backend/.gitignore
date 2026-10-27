@@ -38,4 +38,6 @@ build/
 ### Mac OS ###
 .DS_Store
 
+.env
+
 /src/main/resources/PROJECT_BRIEF_FOR_CODEX.md
