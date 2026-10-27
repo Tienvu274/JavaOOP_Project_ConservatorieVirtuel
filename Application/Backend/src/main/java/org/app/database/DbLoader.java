@@ -1,4 +1,6 @@
 package org.app.database;
 
-public class dbLoader {
+public final class DbLoader {
+    private DbLoader() {
+    }
 }

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class databaseInitializer {
+public final class DbInitializer {
     private static final String DB_NAME = "conservatoire_oop";
     private static final String SERVER_URL =
             "jdbc:mysql://localhost:3306/?connectionTimeZone=UTC";
@@ -25,7 +25,7 @@ public final class databaseInitializer {
     private static final Pattern INDEX_PATTERN = Pattern.compile(
             "(?i)^CREATE\\s+INDEX\\s+(\\w+)\\s+ON\\s+(\\w+)\\s*\\(");
 
-    private databaseInitializer() {}
+    private DbInitializer() {}
 
     public static void initialize() {
         String user = System.getenv().getOrDefault("DB_USER", "root");
@@ -169,7 +169,7 @@ public final class databaseInitializer {
     }
 
     private static List<String> sqlStatements(String resource) throws IOException {
-        InputStream input = databaseInitializer.class.getResourceAsStream(resource);
+        InputStream input = DbInitializer.class.getResourceAsStream(resource);
         if (input == null) {
             throw new IOException("SQL resource missing: " + resource);
         }
