@@ -17,7 +17,7 @@ public class UnlimitedPackage extends CoursePackage {
 
     @Override
     public int getLessonLimit() {
-        return Integer.MAX_VALUE;
+        throw new IllegalStateException("Unlimited package has no finite lesson count");
     }
 
     @Override

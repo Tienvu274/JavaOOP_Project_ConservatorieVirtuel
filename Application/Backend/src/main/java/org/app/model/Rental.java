@@ -4,22 +4,24 @@ import java.time.LocalDateTime;
 
 public class Rental extends Activity implements Billable {
 
-    public enum ResourceType {
-        ROOM,
-        INSTRUMENT
-    }
+    public enum ResourceType {ROOM, INSTRUMENT}
 
     private final String studentId;
     private final ResourceType resourceType;
     private final String resourceId;
     private final long priceCents;
 
-    public Rental(String id, String studentId, ResourceType resourceType, String resourceId, LocalDateTime start, int durationMinutes, long priceCents) {
-        super(id, start, durationMinutes);
-        this.studentId = studentId;
+    public Rental(String id, String studentId, ResourceType resourceType, String resourceId, LocalDateTime start, int durationMinutes, long priceCents, Status status, LocalDateTime changedAt) {
+        super(id, start, durationMinutes, status, changedAt);
+        this.studentId = ModelChecks.id(studentId);
+        ModelChecks.require(resourceType != null, "Resource type is required!");
         this.resourceType = resourceType;
-        this.resourceId = resourceId;
-        this.priceCents = priceCents;
+        this.resourceId = ModelChecks.id(resourceId);
+        this.priceCents = ModelChecks.price(priceCents);
+    }
+
+    public Rental(Rental other) {
+        this(other.getId(), other.studentId, other.resourceType, other.resourceId, other.getStart(), other.getDurationMinutes(), other.priceCents, other.getStatus(), other.getChangedAt());
     }
 
     public String getStudentId() {
@@ -42,5 +44,10 @@ public class Rental extends Activity implements Billable {
     @Override
     public String getKind() {
         return resourceType + "_RENTAL";
+    }
+
+    @Override
+    public Activity copy() {
+        return new Rental(this);
     }
 }

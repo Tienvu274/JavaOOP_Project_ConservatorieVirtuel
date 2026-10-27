@@ -1,38 +1,49 @@
 package org.app.model;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Lesson extends Activity {
 
     private final String teacherId;
     private final String roomId;
-    private final String instrumentId;
+    private final String instrumentType;
+    private final boolean groupLesson;
 
-    private final Map<String, String> participants = new LinkedHashMap<>();
+    private final List<String> instrumentIds = new ArrayList<>();
+    private final List<LessonParticipation> participants = new ArrayList<>();
 
-    public Lesson(String id, LocalDateTime start, String teacherId, String roomId, String instrumentId) {
-        super(id, start, 60);
-        this.teacherId = teacherId;
-        this.roomId = roomId;
-        this.instrumentId = instrumentId;
-    }
+    public Lesson(String id, LocalDateTime start, String teacherId, String roomId, String instrumentType, boolean groupLesson, List<String> instrumentIds, Status status, LocalDateTime changedAt, List<LessonParticipation> participants) {
+        super(id, start, 60, status, changedAt);
+        this.teacherId = ModelChecks.id(teacherId);
+        this.roomId = ModelChecks.id(roomId);
+        this.instrumentType = ModelChecks.type(instrumentType);
+        this.groupLesson = groupLesson;
+        ModelChecks.require(instrumentIds != null && !instrumentIds.isEmpty(), "Lesson needs an instrument!");
 
-    public void addParticipant(String studentId, String enrollmentId) {
-        if (participants.containsKey(studentId)) {
-            throw new IllegalArgumentException("Duplicate student");
+        for (String instrumentId : instrumentIds) {
+            instrumentId = ModelChecks.id(instrumentId);
+            ModelChecks.require(!this.instrumentIds.contains(instrumentId), "Duplicate instrument!");
+            this.instrumentIds.add(instrumentId);
         }
-        participants.put(studentId, enrollmentId);
+        for (LessonParticipation participation : participants) {
+            addParticipant(participation);
+        }
     }
 
-    public Map<String, String> getParticipants() {
-        return Collections.unmodifiableMap(participants);
+    public Lesson(Lesson other) {
+        this(other.getId(), other.getStart(), other.teacherId, other.roomId, other.instrumentType, other.groupLesson, other.instrumentIds, other.getStatus(), other.getChangedAt(), other.participants);
     }
 
-    public boolean isGroupLesson() {
-        return participants.size() > 1;
+    public void addParticipant(LessonParticipation value) {
+        ModelChecks.require(getId().equals(value.getLessonId()), "Wrong lesson ID!");
+
+        for (LessonParticipation existing : participants) {
+            ModelChecks.require(!existing.getStudentId().equals(value.getStudentId()), "Duplicate student!");
+        }
+        ModelChecks.require(groupLesson || participants.isEmpty(), "Individual lesson accepts one student!");
+        participants.add(new LessonParticipation(value));
     }
 
     public String getTeacherId() {
@@ -43,12 +54,34 @@ public class Lesson extends Activity {
         return roomId;
     }
 
-    public String getInstrumentId() {
-        return instrumentId;
+    public String getInstrumentType() {
+        return instrumentType;
+    }
+
+    public boolean isGroupLesson() {
+        return groupLesson;
+    }
+
+    public List<String> getInstrumentIds() {
+        return new ArrayList<>(instrumentIds);
+    }
+
+    public List<LessonParticipation> getParticipants() {
+        List<LessonParticipation> result = new ArrayList<>();
+
+        for (LessonParticipation participation : participants) {
+            result.add(new LessonParticipation(participation));
+        }
+        return result;
     }
 
     @Override
     public String getKind() {
         return "LESSON";
+    }
+
+    @Override
+    public Activity copy() {
+        return new Lesson(this);
     }
 }

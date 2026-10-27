@@ -6,14 +6,10 @@ public abstract class CoursePackage implements Billable {
     private final String name;
     private final long priceCents;
 
-    protected CoursePackage(
-            String id,
-            String name,
-            long priceCents) {
-
-        this.id = id;
-        this.name = name;
-        this.priceCents = priceCents;
+    protected CoursePackage(String id, String name, long priceCents) {
+        this.id = ModelChecks.id(id);
+        this.name = ModelChecks.text(name, "Package name");
+        this.priceCents = ModelChecks.price(priceCents);
     }
 
     public String getId() {
@@ -37,6 +33,6 @@ public abstract class CoursePackage implements Billable {
 
     @Override
     public String toString() {
-        return id + " - " + name + " (" + priceCents / 100.0 + " EUR)";
+        return id + " - " + name + " | " + priceCents + " cents" + " | " + (isUnlimited() ? "UNLIMITED" : getLessonLimit() + " lessons");
     }
 }

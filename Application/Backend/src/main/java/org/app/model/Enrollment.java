@@ -1,54 +1,60 @@
 package org.app.model;
 
-package com.conservatoire.model;
-
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 public class Enrollment {
 
     private final String id;
     private final String studentId;
     private final CoursePackage coursePackage;
-
     private final LocalDate validFrom;
     private final LocalDate validUntil;
+    private final LocalDateTime purchasedAt;
 
-    private int usedLessons;
-
-    public Enrollment(String id, String studentId, CoursePackage coursePackage, LocalDate validFrom, LocalDate validUntil) {
-        if (validUntil.isBefore(validFrom)) {
-            throw new IllegalArgumentException("Invalid validity dates");
-        }
-        this.id = id;
-        this.studentId = studentId;
-        this.coursePackage = coursePackage.copy();
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
+    public Enrollment(String id, String studentId, CoursePackage coursePackage, LocalDate validFrom, LocalDate validUntil, LocalDateTime purchasedAt) {
+        this.id = ModelChecks.id(id);
+        this.studentId = ModelChecks.id(studentId);
+        this.coursePackage = Objects.requireNonNull(coursePackage, "Package is required!").copy();
+        this.validFrom = Objects.requireNonNull(validFrom, "Start date is required!");
+        this.validUntil = Objects.requireNonNull(validUntil, "End date is required!");
+        ModelChecks.require(!validUntil.isBefore(validFrom), "Invalid validity dates!");
+        this.purchasedAt = ModelChecks.time(purchasedAt);
     }
 
     public Enrollment(Enrollment other) {
-        this(other.id, other.studentId, other.coursePackage, other.validFrom, other.validUntil);
-        this.usedLessons = other.usedLessons;
+        this(other.id, other.studentId, other.coursePackage, other.validFrom, other.validUntil, other.purchasedAt);
     }
 
-    public boolean canUse(LocalDate day) {
-        return !day.isBefore(validFrom)
-                && !day.isAfter(validUntil)
-                && (coursePackage.isUnlimited() || usedLessons < coursePackage.getLessonLimit());
+    public boolean isValidOn(LocalDate day) {
+        return !day.isBefore(validFrom) && !day.isAfter(validUntil);
     }
 
-    public void useOneLesson(LocalDate day) {
-        if (!canUse(day)) {
-            throw new IllegalStateException("Package expired or empty");
-        }
-        usedLessons++;
-    }
-
-    public int remainingLessons() {
+    public Integer remainingMinutes(List<LessonParticipation> history) {
         if (coursePackage.isUnlimited()) {
-            return Integer.MAX_VALUE;
+            return null;
         }
-        return coursePackage.getLessonLimit() - usedLessons;
+        int used = 0;
+        for (LessonParticipation participation : history) {
+            if (id.equals(participation.getEnrollmentId())) {
+                ModelChecks.require(studentId.equals(participation.getStudentId()), "Usage belongs to another student!");
+                if (participation.getState() != LessonParticipation.State.RELEASED) {
+                    used = Math.addExact(used, participation.getMinutes());
+                }
+            }
+        }
+        int remaining = coursePackage.getLessonLimit() * 60 - used;
+        ModelChecks.require(remaining >= 0, "Package usage exceeds allowance!");
+        return remaining;
+    }
+
+    public Integer availableMinutes(LocalDate day, List<LessonParticipation> history) {
+        if (!isValidOn(day)) {
+            return 0;
+        }
+        return remainingMinutes(history);
     }
 
     public String getId() {
@@ -63,16 +69,22 @@ public class Enrollment {
         return coursePackage.copy();
     }
 
+    public LocalDate getValidFrom() {
+        return validFrom;
+    }
+
+    public LocalDate getValidUntil() {
+        return validUntil;
+    }
+
+    public LocalDateTime getPurchasedAt() {
+        return purchasedAt;
+    }
+
     @Override
     public String toString() {
-        return id + " / "
-                + studentId + " / "
-                + coursePackage.getName()
-                + " / remaining: "
-                + (
-                coursePackage.isUnlimited()
-                        ? "unlimited"
-                        : remainingLessons()
-        );
+        return id + " / " + studentId
+                + " / " + coursePackage.getName()
+                + " / " + validFrom + " -> " + validUntil;
     }
 }

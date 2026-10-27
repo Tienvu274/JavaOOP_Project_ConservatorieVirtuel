@@ -6,11 +6,10 @@ public class FinitePackage extends CoursePackage {
 
     public FinitePackage(String id, String name, long priceCents, int lessonLimit) {
         super(id, name, priceCents);
-        if (lessonLimit <= 0) {
-            throw new IllegalArgumentException("Lesson limit must be positive!");
-        }
+        ModelChecks.require(lessonLimit > 0 && lessonLimit <= Integer.MAX_VALUE / 60, "Invalid lesson count");
         this.lessonLimit = lessonLimit;
     }
+
     public FinitePackage(FinitePackage other) {
         this(other.getId(), other.getName(), other.getPriceCents(), other.lessonLimit);
     }
