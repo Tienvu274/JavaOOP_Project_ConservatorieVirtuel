@@ -1,14 +1,14 @@
 package org.app.model;
 
-public class Person {
+public abstract class Person {
     private String id;
     private String firstName;
     private String lastName;
 
     protected Person(String id, String firstName, String lastName) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.id = ModelChecks.id(id);
+        this.firstName = ModelChecks.text(firstName, "First name");
+        this.lastName = ModelChecks.text(lastName, "Last name");
     }
 
     public String getId() {
@@ -28,4 +28,9 @@ public class Person {
     }
 
     public abstract String getRole();
+
+    @Override
+    public String toString() {
+        return id + " - " + getFullName() + " [" + getRole() + "]";
+    }
 }
