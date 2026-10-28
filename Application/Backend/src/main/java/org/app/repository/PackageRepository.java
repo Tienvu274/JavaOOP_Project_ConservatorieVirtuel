@@ -67,4 +67,32 @@ public class PackageRepository {
             }
         return packages;
     }
+
+    public CoursePackage findById(Connection connection, String id) throws SQLException {
+        String sql = "SELECT id, name, price_cents, "
+                + "unlimited, lesson_count "
+                + "FROM package_offer WHERE id = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, id);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    return null;
+                }
+                if (result.getBoolean("unlimited")) {
+                    return new UnlimitedPackage(
+                            result.getString("id"),
+                            result.getString("name"),
+                            result.getLong("price_cents")
+                    );
+                }
+                return new FinitePackage(
+                        result.getString("id"),
+                        result.getString("name"),
+                        result.getLong("price_cents"),
+                        result.getInt("lesson_count")
+                );
+            }
+        }
+    }
 }

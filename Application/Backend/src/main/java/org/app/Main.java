@@ -6,10 +6,18 @@ import org.app.database.DbLoader;
 import org.app.database.DbTime;
 import org.app.model.*;
 
+import org.app.view.ConsoleSupport;
+
 import org.app.repository.PackageRepository;
 import org.app.service.PackageService;
 import org.app.view.PackageMenu;
-import org.app.view.ConsoleSupport;
+
+import org.app.controller.EnrollmentController;
+import org.app.repository.EnrollmentRepository;
+import org.app.service.EnrollmentService;
+import org.app.view.EnrollmentMenu;
+
+import org.app.repository.ChargeRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,6 +36,12 @@ public class Main {
         PackageController packageController = new PackageController(packageService);
         PackageMenu packageMenu = new PackageMenu(packageController);
 
+        EnrollmentRepository enrollmentRepository = new EnrollmentRepository();
+        ChargeRepository chargeRepository = new ChargeRepository();
+        EnrollmentService enrollmentService = new EnrollmentService(enrollmentRepository, packageRepository, chargeRepository);
+        EnrollmentController enrollmentController = new EnrollmentController(enrollmentService);
+        EnrollmentMenu enrollmentMenu = new EnrollmentMenu(enrollmentController);
+
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n===== CONSERVATOIRE VIRTUEL =====");
@@ -42,6 +56,9 @@ public class Main {
                 System.out.println("9. Retry database initialization");
                 System.out.println("10. Create course package");
                 System.out.println("11. List course packages");
+                System.out.println("12. Enroll student in a package");
+                System.out.println("13. Student packages and learning hours");
+                System.out.println("14. Student lesson usage history");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -123,8 +140,17 @@ public class Main {
                         case "11":
                             packageMenu.listPackages();
                             break;
+                        case "12":
+                            enrollmentMenu.enrollStudent(input);
+                            break;
+                        case "13":
+                            enrollmentMenu.showStudentPackages(input);
+                            break;
+                        case "14":
+                            enrollmentMenu.showUsageHistory(input);
+                            break;
                         default:
-                            System.out.println("Unknown choice. Enter 0-11.");
+                            System.out.println("Unknown choice. Enter 0-14.");
                     }
                 } catch (NumberFormatException error) {
                     System.out.println("[ERROR] Please enter a valid number.");
