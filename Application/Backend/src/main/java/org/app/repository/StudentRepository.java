@@ -13,24 +13,38 @@ public class StudentRepository {
         try (PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet row = statement.executeQuery()) {
             while (row.next()) {
-                String id = row.getString("id");
-                Student student = new Student(
-                        id,
-                        row.getString("first_name"),
-                        row.getString("last_name"),
-                        row.getString("address"),
-                        row.getDate("birth_date").toLocalDate(),
-                        row.getString("phone"),
-                        row.getString("email"),
-                        row.getString("level"),
-                        findPreferences(connection, id)
-                );
-                students.add(student);
+                students.add(readStudent(connection, row));
             }
         }
         return students;
     }
 
+    private Student readStudent(Connection connection, ResultSet row) throws SQLException {
+        String id = row.getString("id");
+        return new Student(
+                id,
+                row.getString("first_name"),
+                row.getString("last_name"),
+                row.getString("address"),
+                row.getDate("birth_date").toLocalDate(),
+                row.getString("phone"),
+                row.getString("email"),
+                row.getString("level"),
+                findPreferences(connection, id)
+        );
+    }
+    public Student findById(Connection connection, String id) throws SQLException {
+        String sql = "SELECT * FROM student WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, id);
+            try (ResultSet row = statement.executeQuery()) {
+                if (row.next()) {
+                    return readStudent(connection, row);
+                }
+                return null;
+            }
+        }
+    }
     private List<String> findPreferences(Connection connection, String studentId) throws SQLException {
         List<String> types = new ArrayList<>();
         String sql = "SELECT instrument_type FROM student_preference WHERE student_id = ? ORDER BY instrument_type";

@@ -1,11 +1,14 @@
 package org.app;
 
 import org.app.controller.PackageController;
+import org.app.controller.StudentController;
 import org.app.database.DbInitializer;
 import org.app.database.DbLoader;
 import org.app.database.DbTime;
 import org.app.model.*;
 
+import org.app.repository.StudentRepository;
+import org.app.service.StudentService;
 import org.app.view.ConsoleSupport;
 
 import org.app.repository.PackageRepository;
@@ -18,6 +21,7 @@ import org.app.service.EnrollmentService;
 import org.app.view.EnrollmentMenu;
 
 import org.app.repository.ChargeRepository;
+import org.app.view.StudentMenu;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -42,6 +46,11 @@ public class Main {
         EnrollmentController enrollmentController = new EnrollmentController(enrollmentService);
         EnrollmentMenu enrollmentMenu = new EnrollmentMenu(enrollmentController);
 
+        StudentRepository studentRepository = new StudentRepository();
+        StudentService studentService = new StudentService(studentRepository);
+        StudentController studentController = new StudentController(studentService);
+        StudentMenu studentMenu = new StudentMenu(studentController);
+
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n===== CONSERVATOIRE VIRTUEL =====");
@@ -59,6 +68,9 @@ public class Main {
                 System.out.println("12. Enroll student in a package");
                 System.out.println("13. Student packages and learning hours");
                 System.out.println("14. Student lesson usage history");
+                //Trung
+                System.out.println("30. List all students");
+                System.out.println("31. Find student by ID");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -149,8 +161,16 @@ public class Main {
                         case "14":
                             enrollmentMenu.showUsageHistory(input);
                             break;
+                            //Trung
+                        case "30":
+                            studentMenu.listStudents();
+                            break;
+                        case "31":
+                            studentMenu.findStudent(input);
+                            break;
                         default:
                             System.out.println("Unknown choice. Enter 0-14.");
+
                     }
                 } catch (NumberFormatException error) {
                     System.out.println("[ERROR] Please enter a valid number.");
