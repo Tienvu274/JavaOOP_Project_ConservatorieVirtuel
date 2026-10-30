@@ -197,6 +197,33 @@ public class SchedulingService {
         }
     }
 
+    public void checkConflicts(Rental rental, List<Activity> activities) {
+        for (Activity other : activities) {
+            if (rental.getId().equals(other.getId())) {
+                throw new IllegalArgumentException("Activity ID already exists.");
+            }
+
+            if (other.getStatus() == Activity.Status.CANCELLED) {
+                continue;
+            }
+            if (!other.overlaps(rental.getStart(), rental.getDurationMinutes())) {
+                continue;
+            }
+
+            if (rental.getResourceType() == Rental.ResourceType.ROOM && rental.getResourceId().equals(roomOf(other))) {
+                throw new IllegalArgumentException("Room conflict with " + other.getId());
+            }
+
+            if (rental.getResourceType() == Rental.ResourceType.INSTRUMENT && instrumentsOf(other).contains(rental.getResourceId())) {
+                throw new IllegalArgumentException("Instrument conflict with " + other.getId());
+            }
+
+            if (studentsOf(other).contains(rental.getStudentId())) {
+                throw new IllegalArgumentException("Student conflict with " + other.getId());
+            }
+        }
+    }
+
     private String roomOf(Activity activity) {
         if (activity instanceof Lesson) {
             return ((Lesson) activity).getRoomId();

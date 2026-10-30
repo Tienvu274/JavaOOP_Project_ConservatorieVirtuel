@@ -10,19 +10,26 @@ import org.app.view.ConsoleSupport;
 import org.app.view.PackageMenu;
 import org.app.view.EnrollmentMenu;
 import org.app.view.SchedulingMenu;
+import org.app.view.RentalMenu;
 
 import org.app.repository.PackageRepository;
 import org.app.repository.LessonRepository;
 import org.app.repository.EnrollmentRepository;
 import org.app.repository.ChargeRepository;
+import org.app.repository.RentalRepository;
+
 
 import org.app.controller.EnrollmentController;
 import org.app.controller.SchedulingController;
 import org.app.controller.PackageController;
+import org.app.controller.RentalController;
+
 
 import org.app.service.EnrollmentService;
 import org.app.service.PackageService;
 import org.app.service.SchedulingService;
+import org.app.service.RentalService;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -52,6 +59,11 @@ public class Main {
         SchedulingController schedulingController = new SchedulingController(schedulingService);
         SchedulingMenu schedulingMenu = new SchedulingMenu(schedulingController);
 
+        RentalRepository rentalRepository = new RentalRepository();
+        RentalService rentalService = new RentalService(rentalRepository, chargeRepository, schedulingService);
+        RentalController rentalController = new RentalController(rentalService);
+        RentalMenu rentalMenu = new RentalMenu(rentalController);
+
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n===== CONSERVATOIRE VIRTUEL =====");
@@ -74,6 +86,8 @@ public class Main {
                 System.out.println("17. Complete a lesson");
                 System.out.println("18. View teacher schedule");
                 System.out.println("19. View student schedule and activities");
+                System.out.println("20. Book a room");
+                System.out.println("21. Rent an instrument");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -179,6 +193,13 @@ public class Main {
 
                         case "19":
                             schedulingMenu.showStudentSchedule(input);
+                            break;
+                        case "20":
+                            rentalMenu.bookRoom(input);
+                            break;
+
+                        case "21":
+                            rentalMenu.rentInstrument(input);
                             break;
                         default:
                             System.out.println("Unknown choice. Enter 0-35.");
