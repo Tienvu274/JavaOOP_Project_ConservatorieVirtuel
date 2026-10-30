@@ -88,6 +88,8 @@ public class Main {
                 System.out.println("19. View student schedule and activities");
                 System.out.println("20. Book a room");
                 System.out.println("21. Rent an instrument");
+                System.out.println("22. Complete a rental");
+                System.out.println("23. Cancel a rental");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -200,6 +202,13 @@ public class Main {
 
                         case "21":
                             rentalMenu.rentInstrument(input);
+                            break;
+                        case "22":
+                            rentalMenu.completeRental(input);
+                            break;
+
+                        case "23":
+                            rentalMenu.cancelRental(input);
                             break;
                         default:
                             System.out.println("Unknown choice. Enter 0-35.");

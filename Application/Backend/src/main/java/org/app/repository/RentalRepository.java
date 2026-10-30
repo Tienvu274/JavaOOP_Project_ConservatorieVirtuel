@@ -44,4 +44,22 @@ public class RentalRepository {
             }
         }
     }
+
+    public void updateStatus(Connection connection, Rental rental) throws SQLException {
+        String sql = "UPDATE activity SET status = ?, changed_at = ? "
+                + "WHERE id = ? AND kind IN ('ROOM_RENTAL', 'INSTRUMENT_RENTAL') AND status = 'SCHEDULED'";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, rental.getStatus().name());
+            statement.setLong(2, DbTime.toEpochSeconds(rental.getChangedAt()));
+            statement.setString(3, rental.getId());
+
+            if (statement.executeUpdate() != 1) {
+                throw new SQLException("Rental is no longer scheduled.");
+            }
+        }
+    }
+
+
+
 }

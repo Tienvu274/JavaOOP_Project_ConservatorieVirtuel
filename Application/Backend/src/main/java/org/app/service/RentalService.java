@@ -96,4 +96,45 @@ public class RentalService {
         if (total % 60 >= 30) price++;
         return price;
     }
+
+    public Rental completeRental(String id, LocalDateTime now) throws SQLException {
+        return changeStatus(id, now, true);
+    }
+
+    public Rental cancelRental(String id, LocalDateTime now) throws SQLException {
+        return changeStatus(id, now, false);
+    }
+
+    private Rental changeStatus(String id, LocalDateTime now, boolean complete) throws SQLException {
+        if (id == null || !id.matches("[A-Za-z0-9_-]{1,40}")) {
+            throw new IllegalArgumentException("Invalid rental ID.");
+        }
+        if (now == null) throw new IllegalArgumentException("Current time is required.");
+        Rental rental = null;
+        for (Activity activity : rentalRepository.loadActivities()) {
+            if (activity.getId().equals(id) && activity instanceof Rental) {
+                rental = new Rental((Rental) activity);
+                break;
+            }
+        }
+        if (rental == null) throw new IllegalArgumentException("Rental not found: " + id);
+        if (rental.getStatus() != Activity.Status.SCHEDULED) {
+            throw new IllegalStateException("Rental is no longer scheduled.");
+        }
+        if (complete) {
+            if (now.isBefore(rental.getEnd())) {
+                throw new IllegalStateException("Rental has not ended yet.");
+            }
+            rental.complete(now);
+        } else {
+            if (!now.isBefore(rental.getStart())) {
+                throw new IllegalStateException("Cannot cancel a rental at or after its start.");
+            }
+            rental.cancel(now);
+        }
+        try (Connection connection = DbContext.open()) {
+            rentalRepository.updateStatus(connection, rental);
+        }
+        return rental;
+    }
 }

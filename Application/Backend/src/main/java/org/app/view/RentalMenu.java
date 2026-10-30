@@ -85,4 +85,21 @@ public class RentalMenu {
             }
         }
     }
+
+    public void completeRental(Scanner input) throws SQLException {
+        String id = readId(input, "Rental ID to complete: ");
+        Rental rental = controller.completeRental(id);
+        System.out.println("[OK] Rental completed: " + rental.getId());
+        System.out.println("Resource: " + rental.getResourceType() + " | " + rental.getResourceId());
+        System.out.println("Billing records are unchanged.");
+    }
+
+    public void cancelRental(Scanner input) throws SQLException {
+        String id = readId(input, "Rental ID to cancel: ");
+        Rental rental = controller.cancelRental(id);
+        System.out.println("[OK] Rental cancelled: " + rental.getId());
+        System.out.println("Resource: " + rental.getResourceType() + " | " + rental.getResourceId());
+        System.out.println("Billing records are unchanged. No automatic refund.");
+    }
+
 }

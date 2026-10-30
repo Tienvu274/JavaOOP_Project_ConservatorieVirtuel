@@ -18,4 +18,13 @@ public class RentalController {
     public Rental createRental(String id, String studentId, Rental.ResourceType type, String resourceId, LocalDateTime start, int minutes) throws SQLException {
         return service.createRental(id, studentId, type, resourceId, start, minutes, LocalDateTime.now(DbTime.ZONE).withNano(0));
     }
+
+    public Rental completeRental(String id) throws SQLException {
+        return service.completeRental(id, LocalDateTime.now(DbTime.ZONE).withNano(0));
+    }
+
+    public Rental cancelRental(String id) throws SQLException {
+        return service.cancelRental(id, LocalDateTime.now(DbTime.ZONE).withNano(0));
+    }
+
 }
