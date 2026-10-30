@@ -168,23 +168,31 @@ public class SchedulingService {
     public void checkConflicts(Lesson lesson, List<Activity> activities) {
         List<String> studentIds = studentsOf(lesson);
         for (Activity other : activities) {
-            require(!lesson.getId().equals(other.getId()), "Activity ID already exists.");
-            if (other.getStatus() == Activity.Status.CANCELLED || !other.overlaps(lesson.getStart(), 60)) {
-                continue;
+            if (lesson.getId().equals(other.getId())) {
+                throw new IllegalArgumentException("Activity ID already exists: " + lesson.getId());
             }
-            require(!lesson.getRoomId().equals(roomOf(other)), "Room conflict with " + other.getId());
+            if (other.getStatus() == Activity.Status.CANCELLED) continue;
+            if (!other.overlaps(lesson.getStart(), lesson.getDurationMinutes())) continue;
+            if (lesson.getRoomId().equals(roomOf(other))) {
+                throw new IllegalArgumentException("Room conflict with " + other.getId());
+            }
             if (other instanceof Lesson) {
                 Lesson otherLesson = (Lesson) other;
-                require(!lesson.getTeacherId().equals(otherLesson.getTeacherId()), "Teacher conflict with " + other.getId());
+                if (lesson.getTeacherId().equals(otherLesson.getTeacherId())) {
+                    throw new IllegalArgumentException("Teacher conflict with " + other.getId());
+                }
             }
-
+            List<String> instrumentIds = instrumentsOf(other);
             for (String id : lesson.getInstrumentIds()) {
-                require(!instrumentsOf(other).contains(id), "Instrument conflict with " + other.getId());
+                if (instrumentIds.contains(id)) {
+                    throw new IllegalArgumentException("Instrument conflict with " + other.getId());
+                }
             }
-
+            List<String> otherStudentIds = studentsOf(other);
             for (String id : studentIds) {
-                require(!studentsOf(other).contains(id), "Student conflict with " + other.getId()
-                );
+                if (otherStudentIds.contains(id)) {
+                    throw new IllegalArgumentException("Student conflict with " + other.getId());
+                }
             }
         }
     }
