@@ -1,9 +1,7 @@
 package org.app.repository;
 import org.app.model.Student;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 public class StudentRepository {
@@ -57,5 +55,59 @@ public class StudentRepository {
             }
         }
         return types;
+    }
+
+    //T02
+    public void insert(Connection connection, Student student) throws SQLException {
+        String sql = "INSERT INTO student "
+                + "(id, first_name, last_name, address, birth_date, phone, email, level) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, student.getId());
+            statement.setString(2, student.getFirstName());
+            statement.setString(3, student.getLastName());
+            statement.setString(4, student.getAddress());
+            statement.setDate(5, Date.valueOf(student.getBirthDate()));
+            statement.setString(6, student.getPhone());
+            statement.setString(7, student.getEmail());
+            statement.setString(8, student.getLevel());
+            if (statement.executeUpdate() != 1) {
+                throw new SQLException("Student was not saved.");
+            }
+        }
+    }
+    public int updateBasic(Connection connection, Student student) throws SQLException {
+        String sql = "UPDATE student SET "
+                + "first_name = ?, last_name = ?, address = ?, birth_date = ?, "
+                + "phone = ?, email = ?, level = ? "
+                + "WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, student.getFirstName());
+            statement.setString(2, student.getLastName());
+            statement.setString(3, student.getAddress());
+            statement.setDate(4, Date.valueOf(student.getBirthDate()));
+            statement.setString(5, student.getPhone());
+            statement.setString(6, student.getEmail());
+            statement.setString(7, student.getLevel());
+            statement.setString(8, student.getId());
+            return statement.executeUpdate();
+        }
+    }
+    public void insertPreferences(Connection connection, String studentId, List<String> types) throws SQLException {
+        String sql = "INSERT INTO student_preference (student_id, instrument_type) VALUES (?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            for (String type : types) {
+                statement.setString(1, studentId);
+                statement.setString(2, type);
+                statement.executeUpdate();
+            }
+        }
+    }
+    public void deletePreferences(Connection connection, String studentId) throws SQLException {
+        String sql = "DELETE FROM student_preference WHERE student_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, studentId);
+            statement.executeUpdate();
+        }
     }
 }

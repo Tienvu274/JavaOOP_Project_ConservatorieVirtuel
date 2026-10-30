@@ -21,4 +21,11 @@ public class StudentController {
     public Student getStudentById(String id) throws SQLException {
         return service.getStudentById(id);
     }
+
+    public void createStudent(Student student) throws SQLException {
+        service.createStudent(student);
+    }
+    public void updateStudent(Student student) throws SQLException {
+        service.updateStudent(student);
+    }
 }

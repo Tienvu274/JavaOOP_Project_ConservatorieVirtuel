@@ -71,6 +71,9 @@ public class Main {
                 //Trung
                 System.out.println("30. List all students");
                 System.out.println("31. Find student by ID");
+                System.out.println("32. Create student");
+                System.out.println("33. Update student");
+
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -167,6 +170,12 @@ public class Main {
                             break;
                         case "31":
                             studentMenu.findStudent(input);
+                            break;
+                        case "32":
+                            studentMenu.createStudent(input);
+                            break;
+                        case "33":
+                            studentMenu.updateStudent(input);
                             break;
                         default:
                             System.out.println("Unknown choice. Enter 0-14.");
