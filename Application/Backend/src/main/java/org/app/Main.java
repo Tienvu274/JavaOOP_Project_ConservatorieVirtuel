@@ -11,25 +11,26 @@ import org.app.view.PackageMenu;
 import org.app.view.EnrollmentMenu;
 import org.app.view.SchedulingMenu;
 import org.app.view.RentalMenu;
+import org.app.view.BillingMenu;
 
 import org.app.repository.PackageRepository;
 import org.app.repository.LessonRepository;
 import org.app.repository.EnrollmentRepository;
 import org.app.repository.ChargeRepository;
 import org.app.repository.RentalRepository;
-
+import org.app.repository.PaymentRepository;
 
 import org.app.controller.EnrollmentController;
 import org.app.controller.SchedulingController;
 import org.app.controller.PackageController;
 import org.app.controller.RentalController;
-
+import org.app.controller.BillingController;
 
 import org.app.service.EnrollmentService;
 import org.app.service.PackageService;
 import org.app.service.SchedulingService;
 import org.app.service.RentalService;
-
+import org.app.service.BillingService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -64,6 +65,11 @@ public class Main {
         RentalController rentalController = new RentalController(rentalService);
         RentalMenu rentalMenu = new RentalMenu(rentalController);
 
+        PaymentRepository paymentRepository = new PaymentRepository();
+        BillingService billingService = new BillingService(paymentRepository);
+        BillingController billingController = new BillingController(billingService);
+        BillingMenu billingMenu = new BillingMenu(billingController);
+
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n===== CONSERVATOIRE VIRTUEL =====");
@@ -90,6 +96,8 @@ public class Main {
                 System.out.println("21. Rent an instrument");
                 System.out.println("22. Complete a rental");
                 System.out.println("23. Cancel a rental");
+                System.out.println("24. Record a payment");
+                System.out.println("25. View student balance");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -209,6 +217,13 @@ public class Main {
 
                         case "23":
                             rentalMenu.cancelRental(input);
+                            break;
+                        case "24":
+                            billingMenu.recordPayment(input);
+                            break;
+
+                        case "25":
+                            billingMenu.showBalance(input);
                             break;
                         default:
                             System.out.println("Unknown choice. Enter 0-35.");
