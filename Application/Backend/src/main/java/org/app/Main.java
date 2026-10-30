@@ -98,6 +98,8 @@ public class Main {
                 System.out.println("23. Cancel a rental");
                 System.out.println("24. Record a payment");
                 System.out.println("25. View student balance");
+                System.out.println("26. View student billing history and totals");
+                System.out.println("27. View monthly billing summary");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -224,6 +226,13 @@ public class Main {
 
                         case "25":
                             billingMenu.showBalance(input);
+                            break;
+                        case "26":
+                            billingMenu.showStudentBilling(input);
+                            break;
+
+                        case "27":
+                            billingMenu.showMonthlyBilling(input);
                             break;
                         default:
                             System.out.println("Unknown choice. Enter 0-35.");

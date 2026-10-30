@@ -4,7 +4,10 @@ import org.app.database.DbContext;
 import org.app.database.DbTime;
 import org.app.model.Payment;
 import org.app.repository.PaymentRepository;
+import org.app.model.Charge;
 
+import java.util.List;
+import java.time.YearMonth;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -69,6 +72,54 @@ public class BillingService {
 
         if (!repository.studentExists(connection, studentId)) {
             throw new IllegalArgumentException("Student not found: " + studentId);
+        }
+    }
+
+    public List<Charge> getStudentCharges(String studentId) throws SQLException {
+        try (Connection connection = DbContext.open()) {
+            requireStudent(connection, studentId);
+            return repository.findChargesByStudentId(connection, studentId);
+        }
+    }
+
+    public List<Payment> getStudentPayments(String studentId) throws SQLException {
+        try (Connection connection = DbContext.open()) {
+            requireStudent(connection, studentId);
+            return repository.findPaymentsByStudentId(connection, studentId);
+        }
+    }
+
+    public long getTotalChargedCents(String studentId) throws SQLException {
+        long total = 0;
+        for (Charge charge : getStudentCharges(studentId)) {
+            total = Math.addExact(total, charge.getAmountCents());
+        }
+        return total;
+    }
+
+    public long getTotalPaidCents(String studentId) throws SQLException {
+        long total = 0;
+        for (Payment payment : getStudentPayments(studentId)) {
+            total = Math.addExact(total, payment.getAmountCents());
+        }
+        return total;
+    }
+
+    public long getMonthlyChargedCents(YearMonth month) throws SQLException {
+        return getMonthlyTotal(month, false);
+    }
+
+    public long getMonthlyPaidCents(YearMonth month) throws SQLException {
+        return getMonthlyTotal(month, true);
+    }
+
+    private long getMonthlyTotal(YearMonth month, boolean payments) throws SQLException {
+        if (month == null) throw new IllegalArgumentException("Month is required.");
+        long from = DbTime.toEpochSeconds(month.atDay(1).atStartOfDay());
+        long until = DbTime.toEpochSeconds(month.plusMonths(1).atDay(1).atStartOfDay());
+        try (Connection connection = DbContext.open()) {
+            if (payments) return repository.getMonthlyPaidCents(connection, from, until);
+            return repository.getMonthlyChargedCents(connection, from, until);
         }
     }
 }

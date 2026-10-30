@@ -2,7 +2,12 @@ package org.app.view;
 
 import org.app.controller.BillingController;
 import org.app.model.Payment;
+import org.app.model.Charge;
 
+import java.util.List;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Scanner;
@@ -68,6 +73,60 @@ public class BillingMenu {
             String value = input.nextLine().trim().toUpperCase(Locale.ROOT);
             if (value.equals("CASH") || value.equals("CARD") || value.equals("TRANSFER")) return value;
             System.out.println("[ERROR] Unknown payment method.");
+        }
+    }
+
+    public void showStudentBilling(Scanner input) throws SQLException {
+        String id = readId(input);
+
+        List<Charge> charges = controller.getStudentCharges(id);
+        List<Payment> payments = controller.getStudentPayments(id);
+        long totalCharged = controller.getTotalChargedCents(id);
+        long totalPaid = controller.getTotalPaidCents(id);
+        long balance = controller.getBalanceCents(id);
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        System.out.println("\n===== STUDENT BILLING: " + id + " =====");
+
+        System.out.println("\nCHARGES:");
+        if (charges.isEmpty()) System.out.println("No charges.");
+
+        for (Charge charge : charges) {
+            System.out.println(charge.getId() + " | " + charge.getAmountCents() + " cents | " + charge.getCreatedAt().format(format) + " | " + charge.getDescription());
+        }
+
+        System.out.println("\nPAYMENTS:");
+        if (payments.isEmpty()) System.out.println("No payments.");
+
+        for (Payment payment : payments) {
+            System.out.println(payment.getId() + " | " + payment.getAmountCents() + " cents | " + payment.getPaidAt().format(format) + " | " + payment.getMethod());
+        }
+
+        System.out.println("\nTotal charged: " + totalCharged + " cents");
+        System.out.println("Total paid: " + totalPaid + " cents");
+        System.out.println("Outstanding balance: " + balance + " cents");
+    }
+
+    public void showMonthlyBilling(Scanner input) throws SQLException {
+        YearMonth month = readMonth(input);
+        long charged = controller.getMonthlyChargedCents(month);
+        long paid = controller.getMonthlyPaidCents(month);
+
+        System.out.println("\n===== SCHOOL BILLING: " + month + " =====");
+        System.out.println("Charges created this month: " + charged + " cents");
+        System.out.println("Payments received this month: " + paid + " cents");
+    }
+
+    private YearMonth readMonth(Scanner input) {
+        while (true) {
+            System.out.print("Month (yyyy-MM): ");
+
+            try {
+                return YearMonth.parse(input.nextLine().trim());
+            } catch (DateTimeParseException error) {
+                System.out.println("[ERROR] Enter a valid month, for example 2026-10.");
+            }
         }
     }
 }
