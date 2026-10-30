@@ -136,4 +136,23 @@ public class SchedulingMenu {
             System.out.println("[ERROR] Unknown instrument type.");
         }
     }
+
+    public void cancelLesson(Scanner input) throws SQLException {
+        String id = readId(input, "Lesson ID to cancel: ", false);
+        Lesson lesson = controller.cancelLesson(id);
+
+        System.out.println("[OK] Lesson cancelled: " + lesson.getId());
+
+        for (LessonParticipation p : lesson.getParticipants()) {
+            System.out.println(p.getStudentId() + " | " + p.getState());
+
+            if (p.getEnrollmentId() == null) {
+                System.out.println("Single paid lesson: billing records are unchanged.");
+            } else if (p.getState() == LessonParticipation.State.RELEASED) {
+                System.out.println("60 minutes released to enrollment " + p.getEnrollmentId());
+            } else {
+                System.out.println("Late cancellation: 60 minutes remain consumed.");
+            }
+        }
+    }
 }

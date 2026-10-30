@@ -70,6 +70,7 @@ public class Main {
                 System.out.println("13. Student packages and learning hours");
                 System.out.println("14. Student lesson usage history");
                 System.out.println("15. Schedule a lesson");
+                System.out.println("16. Cancel a lesson");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -163,8 +164,11 @@ public class Main {
                         case "15":
                             schedulingMenu.scheduleLesson(input);
                             break;
+                        case "16":
+                            schedulingMenu.cancelLesson(input);
+                            break;
                         default:
-                            System.out.println("Unknown choice. Enter 0-15.");
+                            System.out.println("Unknown choice. Enter 0-35.");
                     }
                 } catch (NumberFormatException error) {
                     System.out.println("[ERROR] Please enter a valid number.");

@@ -17,4 +17,8 @@ public class SchedulingController {
     public Lesson scheduleLesson(Lesson lesson) throws SQLException {
         return service.scheduleLesson(lesson, LocalDateTime.now(DbTime.ZONE).withNano(0));
     }
+
+    public Lesson cancelLesson(String lessonId) throws SQLException {
+        return service.cancelLesson(lessonId, LocalDateTime.now(DbTime.ZONE).withNano(0));
+    }
 }

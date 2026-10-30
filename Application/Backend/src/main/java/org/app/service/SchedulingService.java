@@ -262,4 +262,49 @@ public class SchedulingService {
             throw new IllegalArgumentException(message);
         }
     }
+
+    public Lesson cancelLesson(String lessonId, LocalDateTime now) throws SQLException {
+        if (lessonId == null || !lessonId.matches("[A-Za-z0-9_-]{1,40}")) {
+            throw new IllegalArgumentException("Invalid lesson ID.");
+        }
+        if (now == null) throw new IllegalArgumentException("Current time is required.");
+        Lesson lesson = null;
+        for (Activity activity : lessonRepository.loadActivities()) {
+            if (activity.getId().equals(lessonId) && activity instanceof Lesson) {
+                lesson = (Lesson) activity;
+                break;
+            }
+        }
+        if (lesson == null) throw new IllegalArgumentException("Lesson not found: " + lessonId);
+        if (lesson.getStatus() != Activity.Status.SCHEDULED) {
+            throw new IllegalStateException("Only scheduled lessons can be cancelled.");
+        }
+        if (!now.isBefore(lesson.getStart())) {
+            throw new IllegalStateException("Cannot cancel a lesson at or after its start.");
+        }
+        lesson.cancel(now);
+        long secondsLeft = DbTime.toEpochSeconds(lesson.getStart()) - DbTime.toEpochSeconds(now);
+        LessonParticipation.State state = LessonParticipation.State.RELEASED;
+        if (secondsLeft < 24 * 60 * 60) state = LessonParticipation.State.CONSUMED;
+
+        List<LessonParticipation> participants = new ArrayList<>();
+        for (LessonParticipation p : lesson.getParticipants()) {
+            participants.add(p.settle(state, now));
+        }
+
+        Lesson cancelled = new Lesson(lesson.getId(), lesson.getStart(), lesson.getTeacherId(), lesson.getRoomId(), lesson.getInstrumentType(), lesson.isGroupLesson(), lesson.getInstrumentIds(), lesson.getStatus(), lesson.getChangedAt(), participants);
+
+        try (Connection connection = DbContext.open()) {
+            connection.setAutoCommit(false);
+            try {
+                lessonRepository.cancel(connection, cancelled, state);
+                connection.commit();
+                return cancelled;
+            } catch (SQLException | RuntimeException error) {
+                try { connection.rollback(); }
+                catch (SQLException rollbackError) { error.addSuppressed(rollbackError); }
+                throw error;
+            }
+        }
+    }
 }
