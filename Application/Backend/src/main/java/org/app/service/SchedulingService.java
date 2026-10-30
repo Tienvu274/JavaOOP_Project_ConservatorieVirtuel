@@ -301,10 +301,126 @@ public class SchedulingService {
                 connection.commit();
                 return cancelled;
             } catch (SQLException | RuntimeException error) {
-                try { connection.rollback(); }
-                catch (SQLException rollbackError) { error.addSuppressed(rollbackError); }
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackError) {
+                    error.addSuppressed(rollbackError);
+                }
                 throw error;
             }
         }
+    }
+
+    public Lesson completeLesson(String lessonId, LocalDateTime now) throws SQLException {
+        if (lessonId == null || !lessonId.matches("[A-Za-z0-9_-]{1,40}")) {
+            throw new IllegalArgumentException("Invalid lesson ID.");
+        }
+        if (now == null) throw new IllegalArgumentException("Current time is required.");
+        Lesson lesson = null;
+        for (Activity activity : lessonRepository.loadActivities()) {
+            if (activity.getId().equals(lessonId) && activity instanceof Lesson) {
+                lesson = (Lesson) activity;
+                break;
+            }
+        }
+
+        if (lesson == null) throw new IllegalArgumentException("Lesson not found: " + lessonId);
+        if (lesson.getStatus() != Activity.Status.SCHEDULED) {
+            throw new IllegalStateException("Only scheduled lessons can be completed.");
+        }
+        if (now.isBefore(lesson.getEnd())) {
+            throw new IllegalStateException("Lesson has not ended yet.");
+        }
+        lesson.complete(now);
+
+        List<LessonParticipation> participants = new ArrayList<>();
+        for (LessonParticipation p : lesson.getParticipants()) {
+            participants.add(p.settle(LessonParticipation.State.CONSUMED, now));
+        }
+
+        Lesson completed = new Lesson(lesson.getId(), lesson.getStart(), lesson.getTeacherId(), lesson.getRoomId(), lesson.getInstrumentType(), lesson.isGroupLesson(), lesson.getInstrumentIds(), lesson.getStatus(), lesson.getChangedAt(), participants);
+
+        try (Connection connection = DbContext.open()) {
+            connection.setAutoCommit(false);
+            try {
+                lessonRepository.complete(connection, completed);
+                connection.commit();
+                return completed;
+            } catch (SQLException | RuntimeException error) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackError) {
+                    error.addSuppressed(rollbackError);
+                }
+                throw error;
+            }
+        }
+    }
+
+    public List<Activity> getTeacherActivities(String teacherId) throws SQLException {
+        require(teacherId != null && teacherId.matches("[A-Za-z0-9_-]{1,40}"), "Invalid teacher ID.");
+
+        boolean exists = false;
+        for (Teacher teacher : lessonRepository.loadTeachers()) {
+            if (teacher.getId().equals(teacherId)) {
+                exists = true;
+                break;
+            }
+        }
+        require(exists, "Teacher not found: " + teacherId);
+
+        List<Activity> result = new ArrayList<>();
+
+        for (Activity activity : lessonRepository.loadActivities()) {
+            if (activity instanceof Lesson) {
+                Lesson lesson = (Lesson) activity;
+                if (lesson.getTeacherId().equals(teacherId)) result.add(lesson);
+            }
+        }
+
+        return result;
+    }
+
+    public List<Activity> getStudentActivities(String studentId) throws SQLException {
+        require(studentId != null && studentId.matches("[A-Za-z0-9_-]{1,40}"), "Invalid student ID.");
+
+        boolean exists = false;
+        for (Student student : lessonRepository.loadStudents()) {
+            if (student.getId().equals(studentId)) {
+                exists = true;
+                break;
+            }
+        }
+        require(exists, "Student not found: " + studentId);
+
+        List<Activity> result = new ArrayList<>();
+
+        for (Activity activity : lessonRepository.loadActivities()) {
+            boolean belongsToStudent = false;
+
+            if (activity instanceof Lesson) {
+                for (LessonParticipation p : ((Lesson) activity).getParticipants()) {
+                    if (p.getStudentId().equals(studentId)) {
+                        belongsToStudent = true;
+                        break;
+                    }
+                }
+            } else if (activity instanceof Exam) {
+                for (ExamRegistration r : ((Exam) activity).getRegistrations()) {
+                    if (r.getStudentId().equals(studentId)) {
+                        belongsToStudent = true;
+                        break;
+                    }
+                }
+            } else if (activity instanceof Rental) {
+                belongsToStudent = ((Rental) activity).getStudentId().equals(studentId);
+            }
+
+            if (belongsToStudent) {
+                result.add(activity);
+            }
+        }
+
+        return result;
     }
 }

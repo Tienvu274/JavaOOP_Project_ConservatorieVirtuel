@@ -3,7 +3,9 @@ package org.app.controller;
 import org.app.database.DbTime;
 import org.app.model.Lesson;
 import org.app.service.SchedulingService;
+import org.app.model.Activity;
 
+import java.util.List;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
@@ -20,5 +22,17 @@ public class SchedulingController {
 
     public Lesson cancelLesson(String lessonId) throws SQLException {
         return service.cancelLesson(lessonId, LocalDateTime.now(DbTime.ZONE).withNano(0));
+    }
+
+    public Lesson completeLesson(String lessonId) throws SQLException {
+        return service.completeLesson(lessonId, LocalDateTime.now(DbTime.ZONE).withNano(0));
+    }
+
+    public List<Activity> getTeacherActivities(String teacherId) throws SQLException {
+        return service.getTeacherActivities(teacherId);
+    }
+
+    public List<Activity> getStudentActivities(String studentId) throws SQLException {
+        return service.getStudentActivities(studentId);
     }
 }

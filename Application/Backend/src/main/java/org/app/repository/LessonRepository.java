@@ -104,4 +104,27 @@ public class LessonRepository {
             }
         }
     }
+
+    public void complete(Connection connection, Lesson lesson) throws SQLException {
+        String sql = "UPDATE activity SET status = 'COMPLETED', changed_at = ? "
+                + "WHERE id = ? AND kind = 'LESSON' AND status = 'SCHEDULED'";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, DbTime.toEpochSeconds(lesson.getChangedAt()));
+            statement.setString(2, lesson.getId());
+            if (statement.executeUpdate() != 1) {
+                throw new SQLException("Lesson is no longer scheduled.");
+            }
+        }
+
+        sql = "UPDATE lesson_participation SET state = 'CONSUMED', settled_at = ? "
+                + "WHERE lesson_id = ? AND state = 'RESERVED'";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, DbTime.toEpochSeconds(lesson.getChangedAt()));
+            statement.setString(2, lesson.getId());
+
+            if (statement.executeUpdate() != lesson.getParticipants().size()) {
+                throw new SQLException("Participation data changed. Completion was not saved.");
+            }
+        }
+    }
 }

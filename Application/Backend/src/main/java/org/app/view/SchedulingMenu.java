@@ -155,4 +155,67 @@ public class SchedulingMenu {
             }
         }
     }
+
+    public void completeLesson(Scanner input) throws SQLException {
+        String id = readId(input, "Lesson ID to complete: ", false);
+        Lesson lesson = controller.completeLesson(id);
+        System.out.println("[OK] Lesson completed: " + lesson.getId());
+        for (LessonParticipation p : lesson.getParticipants()) {
+            System.out.println(p.getStudentId() + " | " + p.getState() + " | " + p.getMinutes() + " minutes");
+        }
+        System.out.println("Reserved minutes are now consumed. No additional charge was created.");
+    }
+
+    public void showTeacherSchedule(Scanner input) throws SQLException {
+        String id = readId(input, "Teacher ID: ", false);
+        List<Activity> activities = controller.getTeacherActivities(id);
+
+        System.out.println("\n===== TEACHER SCHEDULE: " + id + " =====");
+        showActivities(activities);
+    }
+
+    public void showStudentSchedule(Scanner input) throws SQLException {
+        String id = readId(input, "Student ID: ", false);
+        List<Activity> activities = controller.getStudentActivities(id);
+
+        System.out.println("\n===== STUDENT SCHEDULE: " + id + " =====");
+        showActivities(activities);
+    }
+
+    private void showActivities(List<Activity> activities) {
+        if (activities.isEmpty()) {
+            System.out.println("No activities found.");
+            return;
+        }
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        for (Activity activity : activities) {
+            System.out.println("\n" + activity.getId() + " | " + activity.getKind() + " | " + activity.getStatus());
+            System.out.println("Time: " + activity.getStart().format(format) + " -> " + activity.getEnd().format(format));
+
+            if (activity instanceof Lesson) {
+                Lesson lesson = (Lesson) activity;
+
+                System.out.println("Teacher: " + lesson.getTeacherId() + " | Room: " + lesson.getRoomId());
+                System.out.println("Instrument type: " + lesson.getInstrumentType() + " | Instruments: " + lesson.getInstrumentIds());
+                System.out.println("Lesson type: " + (lesson.isGroupLesson() ? "GROUP" : "INDIVIDUAL"));
+
+                for (LessonParticipation p : lesson.getParticipants()) {
+                    System.out.println("Student: " + p.getStudentId() + " | " + p.getState());
+                }
+            } else if (activity instanceof Exam) {
+                Exam exam = (Exam) activity;
+
+                System.out.println("Exam: " + exam.getName() + " | Instrument type: " + exam.getInstrumentType());
+                System.out.println("Room: " + exam.getRoomId() + " | Instruments: " + exam.getInstrumentIds());
+
+            } else if (activity instanceof Rental) {
+                Rental rental = (Rental) activity;
+
+                System.out.println("Student: " + rental.getStudentId());
+                System.out.println("Resource: " + rental.getResourceType() + " | ID: " + rental.getResourceId());
+            }
+        }
+    }
 }

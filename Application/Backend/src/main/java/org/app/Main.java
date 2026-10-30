@@ -71,6 +71,9 @@ public class Main {
                 System.out.println("14. Student lesson usage history");
                 System.out.println("15. Schedule a lesson");
                 System.out.println("16. Cancel a lesson");
+                System.out.println("17. Complete a lesson");
+                System.out.println("18. View teacher schedule");
+                System.out.println("19. View student schedule and activities");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -166,6 +169,16 @@ public class Main {
                             break;
                         case "16":
                             schedulingMenu.cancelLesson(input);
+                            break;
+                        case "17":
+                            schedulingMenu.completeLesson(input);
+                            break;
+                        case "18":
+                            schedulingMenu.showTeacherSchedule(input);
+                            break;
+
+                        case "19":
+                            schedulingMenu.showStudentSchedule(input);
                             break;
                         default:
                             System.out.println("Unknown choice. Enter 0-35.");
