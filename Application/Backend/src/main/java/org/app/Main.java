@@ -7,17 +7,22 @@ import org.app.database.DbTime;
 import org.app.model.*;
 
 import org.app.view.ConsoleSupport;
+import org.app.view.PackageMenu;
+import org.app.view.EnrollmentMenu;
+import org.app.view.SchedulingMenu;
 
 import org.app.repository.PackageRepository;
-import org.app.service.PackageService;
-import org.app.view.PackageMenu;
+import org.app.repository.LessonRepository;
+import org.app.repository.EnrollmentRepository;
+import org.app.repository.ChargeRepository;
 
 import org.app.controller.EnrollmentController;
-import org.app.repository.EnrollmentRepository;
-import org.app.service.EnrollmentService;
-import org.app.view.EnrollmentMenu;
+import org.app.controller.SchedulingController;
+import org.app.controller.PackageController;
 
-import org.app.repository.ChargeRepository;
+import org.app.service.EnrollmentService;
+import org.app.service.PackageService;
+import org.app.service.SchedulingService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,7 +30,6 @@ import java.util.Scanner;
 
 
 public class Main {
-
     public static void main(String[] args) {
         if (!ConsoleSupport.initializeDatabase()) {
             return;
@@ -41,6 +45,12 @@ public class Main {
         EnrollmentService enrollmentService = new EnrollmentService(enrollmentRepository, packageRepository, chargeRepository);
         EnrollmentController enrollmentController = new EnrollmentController(enrollmentService);
         EnrollmentMenu enrollmentMenu = new EnrollmentMenu(enrollmentController);
+
+        LessonRepository lessonRepository = new LessonRepository();
+
+        SchedulingService schedulingService = new SchedulingService(lessonRepository, chargeRepository);
+        SchedulingController schedulingController = new SchedulingController(schedulingService);
+        SchedulingMenu schedulingMenu = new SchedulingMenu(schedulingController);
 
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
@@ -59,6 +69,7 @@ public class Main {
                 System.out.println("12. Enroll student in a package");
                 System.out.println("13. Student packages and learning hours");
                 System.out.println("14. Student lesson usage history");
+                System.out.println("15. Schedule a lesson");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -149,8 +160,11 @@ public class Main {
                         case "14":
                             enrollmentMenu.showUsageHistory(input);
                             break;
+                        case "15":
+                            schedulingMenu.scheduleLesson(input);
+                            break;
                         default:
-                            System.out.println("Unknown choice. Enter 0-14.");
+                            System.out.println("Unknown choice. Enter 0-15.");
                     }
                 } catch (NumberFormatException error) {
                     System.out.println("[ERROR] Please enter a valid number.");

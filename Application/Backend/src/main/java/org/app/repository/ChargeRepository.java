@@ -30,5 +30,20 @@ public class ChargeRepository {
         }
     }
 
+    public String nextId(Connection connection) throws SQLException {
+        String sql =
+                "SELECT COALESCE("
+                        + "MAX(CAST(SUBSTRING(id, 5) AS UNSIGNED)), 0"
+                        + ") + 1 "
+                        + "FROM charge "
+                        + "WHERE id REGEXP '^CHG_[0-9]+$'";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             java.sql.ResultSet result = statement.executeQuery()) {
+            result.next();
+            return "CHG_" + String.format(java.util.Locale.ROOT, "%03d", result.getLong(1));
+        }
+    }
+
 
 }
