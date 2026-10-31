@@ -2,26 +2,21 @@ package org.app;
 
 import org.app.controller.PackageController;
 import org.app.controller.StudentController;
+import org.app.controller.TeacherController;
 import org.app.database.DbInitializer;
 import org.app.database.DbLoader;
 import org.app.database.DbTime;
 import org.app.model.*;
 
-import org.app.repository.StudentRepository;
+import org.app.repository.*;
 import org.app.service.StudentService;
-import org.app.view.ConsoleSupport;
+import org.app.service.TeacherService;
+import org.app.view.*;
 
-import org.app.repository.PackageRepository;
 import org.app.service.PackageService;
-import org.app.view.PackageMenu;
 
 import org.app.controller.EnrollmentController;
-import org.app.repository.EnrollmentRepository;
 import org.app.service.EnrollmentService;
-import org.app.view.EnrollmentMenu;
-
-import org.app.repository.ChargeRepository;
-import org.app.view.StudentMenu;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -51,6 +46,11 @@ public class Main {
         StudentController studentController = new StudentController(studentService);
         StudentMenu studentMenu = new StudentMenu(studentController);
 
+        TeacherRepository teacherRepository = new TeacherRepository();
+        TeacherService teacherService = new TeacherService(teacherRepository);
+        TeacherController teacherController = new TeacherController(teacherService);
+        TeacherMenu teacherMenu = new TeacherMenu(teacherController);
+
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n===== CONSERVATOIRE VIRTUEL =====");
@@ -73,7 +73,12 @@ public class Main {
                 System.out.println("31. Find student by ID");
                 System.out.println("32. Create student");
                 System.out.println("33. Update student");
-
+                System.out.println("34. List teachers");
+                System.out.println("35. Find teacher by ID");
+                System.out.println("36. Create teacher");
+                System.out.println("37. Update teacher");
+                System.out.println("38. Add teacher specialization");
+                System.out.println("39. Add teacher availability");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -177,6 +182,19 @@ public class Main {
                         case "33":
                             studentMenu.updateStudent(input);
                             break;
+                        case "34": teacherMenu.listTeachers();
+                            break;
+                        case "35": teacherMenu.findTeacher(input);
+                            break;
+                        case "36": teacherMenu.createTeacher(input);
+                            break;
+                        case "37": teacherMenu.updateTeacher(input);
+                            break;
+                        case "38": teacherMenu.addSpecialization(input);
+                            break;
+                        case "39": teacherMenu.addAvailability(input);
+                            break;
+
                         default:
                             System.out.println("Unknown choice. Enter 0-14.");
 
