@@ -48,6 +48,10 @@ public class Main {
         ResourceController resourceController = new ResourceController(resourceService);
         ResourceMenu resourceMenu = new ResourceMenu(resourceController);
 
+        ExamRepository examRepository = new ExamRepository();
+        ExamService examService = new ExamService(examRepository, resourceRepository);
+        ExamController examController = new ExamController(examService);
+        ExamMenu examMenu = new ExamMenu(examController);
 
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
@@ -85,7 +89,14 @@ public class Main {
                 System.out.println("45. Find instrument by ID");
                 System.out.println("46. Create instrument");
                 System.out.println("47. Update instrument");
-
+                System.out.println("48. List exams");
+                System.out.println("49. Find exam by ID");
+                System.out.println("50. Create exam");
+                System.out.println("51. Check exam conflicts");
+                System.out.println("52. Register student to exam");
+                System.out.println("53. Show exam registrations");
+                System.out.println("54. Complete exam");
+                System.out.println("55. Record exam result");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -217,9 +228,24 @@ public class Main {
                             break;
                         case "47": resourceMenu.updateInstrument(input);
                             break;
-
+                        case "48": examMenu.listExams();
+                            break;
+                        case "49": examMenu.findExam(input);
+                            break;
+                        case "50": examMenu.createExam(input);
+                            break;
+                        case "51": examMenu.checkConflicts(input);
+                            break;
+                        case "52": examMenu.registerStudent(input);
+                            break;
+                        case "53": examMenu.showRegistrations(input);
+                            break;
+                        case "54": examMenu.completeExam(input);
+                            break;
+                        case "55": examMenu.recordResult(input);
+                            break;
                         default:
-                            System.out.println("Unknown choice. Enter 0-14.");
+                            System.out.println("Unknown choice. Enter 0-55.");
 
                     }
                 } catch (NumberFormatException error) {
