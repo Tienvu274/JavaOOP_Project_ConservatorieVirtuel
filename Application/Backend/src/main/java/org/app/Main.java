@@ -1,36 +1,11 @@
 package org.app;
 
-import org.app.controller.PackageController;
-import org.app.database.DbInitializer;
-import org.app.database.DbLoader;
-import org.app.database.DbTime;
-import org.app.model.*;
 
-import org.app.view.ConsoleSupport;
-import org.app.view.PackageMenu;
-import org.app.view.EnrollmentMenu;
-import org.app.view.SchedulingMenu;
-import org.app.view.RentalMenu;
-import org.app.view.BillingMenu;
-
-import org.app.repository.PackageRepository;
-import org.app.repository.LessonRepository;
-import org.app.repository.EnrollmentRepository;
-import org.app.repository.ChargeRepository;
-import org.app.repository.RentalRepository;
-import org.app.repository.PaymentRepository;
-
-import org.app.controller.EnrollmentController;
-import org.app.controller.SchedulingController;
-import org.app.controller.PackageController;
-import org.app.controller.RentalController;
-import org.app.controller.BillingController;
-
-import org.app.service.EnrollmentService;
-import org.app.service.PackageService;
-import org.app.service.SchedulingService;
-import org.app.service.RentalService;
-import org.app.service.BillingService;
+import org.app.controller.*;
+import org.app.repository.*;
+import org.app.service.*;
+import org.app.view.*;
+import org.app.database.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,6 +13,7 @@ import java.util.Scanner;
 
 
 public class Main {
+
     public static void main(String[] args) {
         if (!ConsoleSupport.initializeDatabase()) {
             return;
@@ -70,6 +46,26 @@ public class Main {
         BillingController billingController = new BillingController(billingService);
         BillingMenu billingMenu = new BillingMenu(billingController);
 
+        StudentRepository studentRepository = new StudentRepository();
+        StudentService studentService = new StudentService(studentRepository);
+        StudentController studentController = new StudentController(studentService);
+        StudentMenu studentMenu = new StudentMenu(studentController);
+
+        TeacherRepository teacherRepository = new TeacherRepository();
+        TeacherService teacherService = new TeacherService(teacherRepository);
+        TeacherController teacherController = new TeacherController(teacherService);
+        TeacherMenu teacherMenu = new TeacherMenu(teacherController);
+
+        ResourceRepository resourceRepository = new ResourceRepository();
+        ResourceService resourceService = new ResourceService(resourceRepository);
+        ResourceController resourceController = new ResourceController(resourceService);
+        ResourceMenu resourceMenu = new ResourceMenu(resourceController);
+
+        ExamRepository examRepository = new ExamRepository();
+        ExamService examService = new ExamService(examRepository, resourceRepository);
+        ExamController examController = new ExamController(examService);
+        ExamMenu examMenu = new ExamMenu(examController);
+
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n===== CONSERVATOIRE VIRTUEL =====");
@@ -100,6 +96,33 @@ public class Main {
                 System.out.println("25. View student balance");
                 System.out.println("26. View student billing history and totals");
                 System.out.println("27. View monthly billing summary");
+                //Trung
+                System.out.println("30. List all students");
+                System.out.println("31. Find student by ID");
+                System.out.println("32. Create student");
+                System.out.println("33. Update student");
+                System.out.println("34. List teachers");
+                System.out.println("35. Find teacher by ID");
+                System.out.println("36. Create teacher");
+                System.out.println("37. Update teacher");
+                System.out.println("38. Add teacher specialization");
+                System.out.println("39. Add teacher availability");
+                System.out.println("40. List rooms");
+                System.out.println("41. Find room by ID");
+                System.out.println("42. Create room");
+                System.out.println("43. Update room");
+                System.out.println("44. List instruments");
+                System.out.println("45. Find instrument by ID");
+                System.out.println("46. Create instrument");
+                System.out.println("47. Update instrument");
+                System.out.println("48. List exams");
+                System.out.println("49. Find exam by ID");
+                System.out.println("50. Create exam");
+                System.out.println("51. Check exam conflicts");
+                System.out.println("52. Register student to exam");
+                System.out.println("53. Show exam registrations");
+                System.out.println("54. Complete exam");
+                System.out.println("55. Record exam result");
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -234,8 +257,66 @@ public class Main {
                         case "27":
                             billingMenu.showMonthlyBilling(input);
                             break;
+
+                            //Trung
+                        case "30":
+                            studentMenu.listStudents();
+                            break;
+                        case "31":
+                            studentMenu.findStudent(input);
+                            break;
+                        case "32":
+                            studentMenu.createStudent(input);
+                            break;
+                        case "33":
+                            studentMenu.updateStudent(input);
+                            break;
+                        case "34": teacherMenu.listTeachers();
+                            break;
+                        case "35": teacherMenu.findTeacher(input);
+                            break;
+                        case "36": teacherMenu.createTeacher(input);
+                            break;
+                        case "37": teacherMenu.updateTeacher(input);
+                            break;
+                        case "38": teacherMenu.addSpecialization(input);
+                            break;
+                        case "39": teacherMenu.addAvailability(input);
+                            break;
+                        case "40": resourceMenu.listRooms();
+                            break;
+                        case "41": resourceMenu.findRoom(input);
+                            break;
+                        case "42": resourceMenu.createRoom(input);
+                            break;
+                        case "43": resourceMenu.updateRoom(input);
+                            break;
+                        case "44": resourceMenu.listInstruments();
+                            break;
+                        case "45": resourceMenu.findInstrument(input);
+                            break;
+                        case "46": resourceMenu.createInstrument(input);
+                            break;
+                        case "47": resourceMenu.updateInstrument(input);
+                            break;
+                        case "48": examMenu.listExams();
+                            break;
+                        case "49": examMenu.findExam(input);
+                            break;
+                        case "50": examMenu.createExam(input);
+                            break;
+                        case "51": examMenu.checkConflicts(input);
+                            break;
+                        case "52": examMenu.registerStudent(input);
+                            break;
+                        case "53": examMenu.showRegistrations(input);
+                            break;
+                        case "54": examMenu.completeExam(input);
+                            break;
+                        case "55": examMenu.recordResult(input);
+                            break;
                         default:
-                            System.out.println("Unknown choice. Enter 0-35.");
+                            System.out.println("Unknown choice. Enter 0-55.");
                     }
                 } catch (NumberFormatException error) {
                     System.out.println("[ERROR] Please enter a valid number.");
