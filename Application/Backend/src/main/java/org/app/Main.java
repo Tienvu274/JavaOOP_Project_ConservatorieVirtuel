@@ -1,22 +1,14 @@
 package org.app;
 
-import org.app.controller.PackageController;
-import org.app.controller.StudentController;
-import org.app.controller.TeacherController;
+import org.app.controller.*;
 import org.app.database.DbInitializer;
 import org.app.database.DbLoader;
 import org.app.database.DbTime;
 import org.app.model.*;
 
 import org.app.repository.*;
-import org.app.service.StudentService;
-import org.app.service.TeacherService;
+import org.app.service.*;
 import org.app.view.*;
-
-import org.app.service.PackageService;
-
-import org.app.controller.EnrollmentController;
-import org.app.service.EnrollmentService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -51,6 +43,12 @@ public class Main {
         TeacherController teacherController = new TeacherController(teacherService);
         TeacherMenu teacherMenu = new TeacherMenu(teacherController);
 
+        ResourceRepository resourceRepository = new ResourceRepository();
+        ResourceService resourceService = new ResourceService(resourceRepository);
+        ResourceController resourceController = new ResourceController(resourceService);
+        ResourceMenu resourceMenu = new ResourceMenu(resourceController);
+
+
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n===== CONSERVATOIRE VIRTUEL =====");
@@ -79,6 +77,11 @@ public class Main {
                 System.out.println("37. Update teacher");
                 System.out.println("38. Add teacher specialization");
                 System.out.println("39. Add teacher availability");
+                System.out.println("40. List rooms");
+                System.out.println("41. Find room by ID");
+                System.out.println("42. Create room");
+                System.out.println("43. Update room");
+
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
 
@@ -194,7 +197,14 @@ public class Main {
                             break;
                         case "39": teacherMenu.addAvailability(input);
                             break;
-
+                        case "40": resourceMenu.listRooms();
+                            break;
+                        case "41": resourceMenu.findRoom(input);
+                            break;
+                        case "42": resourceMenu.createRoom(input);
+                            break;
+                        case "43": resourceMenu.updateRoom(input);
+                            break;
                         default:
                             System.out.println("Unknown choice. Enter 0-14.");
 
