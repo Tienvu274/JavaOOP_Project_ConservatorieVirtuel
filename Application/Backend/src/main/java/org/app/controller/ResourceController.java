@@ -1,5 +1,6 @@
 package org.app.controller;
 
+import org.app.model.Instrument;
 import org.app.model.Room;
 import org.app.service.ResourceService;
 
@@ -29,4 +30,21 @@ public class ResourceController {
     public void updateRoom(Room room) throws SQLException {
         service.updateRoom(room);
     }
+    //T06
+    public List<Instrument> getAllInstruments() throws SQLException {
+        return service.getAllInstruments();
+    }
+
+    public Instrument getInstrumentById(String id) throws SQLException {
+        return service.getInstrumentById(id);
+    }
+
+    public void createInstrument(Instrument instrument) throws SQLException {
+        service.createInstrument(instrument);
+    }
+
+    public void updateInstrument(Instrument instrument) throws SQLException {
+        service.updateInstrument(instrument);
+    }
+
 }

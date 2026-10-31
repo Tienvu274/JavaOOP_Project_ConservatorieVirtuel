@@ -1,6 +1,7 @@
 package org.app.service;
 
 import org.app.database.DbContext;
+import org.app.model.Instrument;
 import org.app.model.Room;
 import org.app.repository.ResourceRepository;
 
@@ -66,4 +67,50 @@ public class ResourceService {
             throw new IllegalArgumentException("Invalid room ID");
         }
     }
+    //T06
+    public List<Instrument> getAllInstruments() throws SQLException {
+        try (Connection connection = DbContext.open()) {
+            return resourceRepository.findAllInstruments(connection);
+        }
+    }
+
+    public Instrument getInstrumentById(String id) throws SQLException {
+        requireValidId(id);
+        try (Connection connection = DbContext.open()) {
+            Instrument instrument = resourceRepository.findInstrumentById(connection, id.trim());
+            if (instrument == null) {
+                throw new IllegalArgumentException("Instrument not found: " + id.trim());
+            }
+            return instrument;
+        }
+    }
+
+    public void createInstrument(Instrument instrument) throws SQLException {
+        if (instrument == null) {
+            throw new IllegalArgumentException("Instrument is required.");
+        }
+        try (Connection connection = DbContext.open()) {
+            try {
+                resourceRepository.insertInstrument(connection, instrument);
+            } catch (SQLException error) {
+                if (error.getErrorCode() == 1062) {
+                    throw new IllegalArgumentException("Instrument ID already exists: " + instrument.getId(), error);
+                }
+                throw error;
+            }
+        }
+    }
+
+    public void updateInstrument(Instrument instrument) throws SQLException {
+        if (instrument == null) {
+            throw new IllegalArgumentException("Instrument is required.");
+        }
+        try (Connection connection = DbContext.open()) {
+            int rows = resourceRepository.updateInstrumentBasic(connection, instrument);
+            if (rows == 0) {
+                throw new IllegalArgumentException("Instrument not found: " + instrument.getId());
+            }
+        }
+    }
+
 }

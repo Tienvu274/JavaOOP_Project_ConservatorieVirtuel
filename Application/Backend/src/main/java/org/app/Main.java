@@ -81,6 +81,10 @@ public class Main {
                 System.out.println("41. Find room by ID");
                 System.out.println("42. Create room");
                 System.out.println("43. Update room");
+                System.out.println("44. List instruments");
+                System.out.println("45. Find instrument by ID");
+                System.out.println("46. Create instrument");
+                System.out.println("47. Update instrument");
 
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
@@ -205,6 +209,15 @@ public class Main {
                             break;
                         case "43": resourceMenu.updateRoom(input);
                             break;
+                        case "44": resourceMenu.listInstruments();
+                            break;
+                        case "45": resourceMenu.findInstrument(input);
+                            break;
+                        case "46": resourceMenu.createInstrument(input);
+                            break;
+                        case "47": resourceMenu.updateInstrument(input);
+                            break;
+
                         default:
                             System.out.println("Unknown choice. Enter 0-14.");
 
