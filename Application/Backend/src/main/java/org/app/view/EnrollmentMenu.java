@@ -45,7 +45,7 @@ public class EnrollmentMenu {
                 from,
                 until
         );
-        System.out.println("Enrollment and charge saved.");
+        System.out.println("[OK] Enrollment and charge saved.");
         System.out.println(enrollment);
         System.out.println("Charge ID: " + chargeId);
         System.out.println("Amount due: " + enrollment.getCoursePackage().getPriceCents() + " cents");

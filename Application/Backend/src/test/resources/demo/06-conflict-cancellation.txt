@@ -1,0 +1,29 @@
+# ERROR: Room conflict with LES_LIVE_01
+# EXPECT: [OK] Lesson cancelled: LES_LIVE_01
+# EXPECT: Late cancellation: 60 minutes remain consumed.
+# EXPECT: Consumed: 60 min
+# EXPECT: Reserved: 0 min
+# EXPECT: Available for booking: 120 min
+# EXPECT: State: CONSUMED
+# Same resources, overlap by 30 minutes: one expected error.
+15
+LES_LIVE_CLASH
+${CONFLICT_START}
+TCH_002
+RM_GT_02
+GUITAR
+GT_02
+2
+2
+STU_LIVE_01
+ENR_LIVE_01
+STU_002
+ENR_002
+# Cancel before start, within 24 hours.
+16
+LES_LIVE_01
+13
+STU_LIVE_01
+14
+STU_LIVE_01
+0

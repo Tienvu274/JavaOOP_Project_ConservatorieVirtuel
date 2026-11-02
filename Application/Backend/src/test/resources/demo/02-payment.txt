@@ -1,0 +1,11 @@
+# EXPECT: [OK] Payment saved:
+# EXPECT: Total charged: 12000 cents
+# EXPECT: Total paid: 5000 cents
+# EXPECT: Outstanding balance: 7000 cents
+24
+STU_LIVE_01
+5000
+CARD
+26
+STU_LIVE_01
+0

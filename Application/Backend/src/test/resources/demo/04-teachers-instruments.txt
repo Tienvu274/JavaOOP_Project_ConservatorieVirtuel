@@ -1,0 +1,14 @@
+# EXPECT: Lucas Bernard
+# EXPECT: GUITAR
+# EXPECT: Availability added (slot
+# EXPECT: Acoustic Steel-String Guitar
+# EXPECT: Price: 800 cents/h
+33
+TCH_002
+37
+TCH_002
+${EXTRA_START}
+${EXTRA_END}
+43
+GT_02
+0

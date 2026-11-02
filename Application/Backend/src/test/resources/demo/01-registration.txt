@@ -1,0 +1,32 @@
+# Creates real rows. Run ONCE with these IDs.
+# Do not rerun with the same IDs. All seven parts share this demo dataset.
+# EXPECT: Student created:
+# EXPECT: lan.pham@example.com
+# EXPECT: Enrollment and charge saved.
+# EXPECT: Amount due: 12000 cents
+# EXPECT: Purchased: 180 min
+# Create student: menu 30, then the nine fields in StudentMenu order.
+30
+STU_LIVE_01
+Lan
+Pham
+12 Rue des Ecoles, Paris
+2005-03-10
+0612345678
+lan.pham@example.com
+BEGINNER
+GUITAR,FLUTE
+# Read back the saved student.
+29
+STU_LIVE_01
+# Enroll and create charge. Dates generated for the current Paris date.
+12
+ENR_LIVE_01
+CHG_LIVE_01
+STU_LIVE_01
+PKG_INTRO_03
+${TODAY}
+${UNTIL}
+13
+STU_LIVE_01
+0

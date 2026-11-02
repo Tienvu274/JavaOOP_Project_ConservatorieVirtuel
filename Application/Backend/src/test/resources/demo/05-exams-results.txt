@@ -1,0 +1,23 @@
+# Requires part 01 and the earlier Seed_Live_Setup.sql fixtures.
+# EX_FL_01 must still be future/open/not full (seed: 2026-11-12 14:00 Paris).
+# EX_LIVE_DONE must have ended, be SCHEDULED and contain STU_001 without a result.
+# This scenario is not repeatable with the same registrations/results.
+# EXPECT: Student registered.
+# EXPECT: Exam completed.
+# EXPECT: Result recorded.
+# EXPECT: STU_001
+50
+EX_FL_01
+STU_LIVE_01
+51
+EX_FL_01
+52
+EX_LIVE_DONE
+53
+EX_LIVE_DONE
+STU_001
+y
+85
+51
+EX_LIVE_DONE
+0

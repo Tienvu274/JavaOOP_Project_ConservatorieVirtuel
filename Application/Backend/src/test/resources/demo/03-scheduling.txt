@@ -1,0 +1,27 @@
+# EXPECT: Availability added (slot
+# EXPECT: [OK] Lesson saved:
+# EXPECT: Purchased: 180 min
+# EXPECT: Reserved: 60 min
+# EXPECT: Available for booking: 120 min
+# Teacher availability covers today and the next 24 hours.
+37
+TCH_002
+${SLOT_START}
+${SLOT_END}
+# Group lesson: type 2, two students, then student/enrollment pairs.
+15
+LES_LIVE_01
+${LESSON_START}
+TCH_002
+RM_GT_02
+GUITAR
+GT_02
+2
+2
+STU_LIVE_01
+ENR_LIVE_01
+STU_002
+ENR_002
+13
+STU_LIVE_01
+0

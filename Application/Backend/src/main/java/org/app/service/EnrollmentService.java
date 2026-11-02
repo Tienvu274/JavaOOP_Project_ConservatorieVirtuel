@@ -76,7 +76,7 @@ public class EnrollmentService {
                 }
 
                 if (error instanceof SQLException && ((SQLException) error).getErrorCode() == 1062) {
-                    throw new IllegalArgumentException("Enrollment ID or charge ID already exists.", error);
+                    throw new IllegalArgumentException("[Error] Enrollment ID or charge ID already exists.", error);
                 }
                 throw error;
             }
