@@ -1,4 +1,4 @@
-2121wQ# EXPECT: Availability added (slot
+# EXPECT: Availability added (slot
 # EXPECT: [OK] Lesson saved:
 # EXPECT: Purchased: 180 min
 # EXPECT: Reserved: 60 min
